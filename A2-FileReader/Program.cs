@@ -17,6 +17,10 @@ namespace A2_FileReader
             FileStream fileStream = new FileStream(path,
                                                    FileMode.Open);
 
+            string path2 = "D:/text2.txt";
+            FileStream fileStream2 = new FileStream(path2,
+                                                   FileMode.Open);
+
             int bufferSize = 128;  // minimum is 128 , default is 4096
             StreamReader reader = new StreamReader(fileStream,
                                                    Encoding.UTF8,
@@ -32,7 +36,13 @@ namespace A2_FileReader
 
             Task<FullText> displayFullText = DisplayFullTextAsync(reader);
 
-            var allTasks = new List<Task> { displayFullText };
+            StreamReader reader2 = new StreamReader(fileStream2,
+                                                   Encoding.UTF8,
+                                                   true,
+                                                   bufferSize);
+            Task<LineByLineText> displayLineByLineText = DisplayLineByLineTextAsync(reader2);
+
+            var allTasks = new List<Task> { displayFullText , displayLineByLineText };
 
             while (allTasks.Count > 0)
             {
@@ -42,10 +52,14 @@ namespace A2_FileReader
                 {
                     Console.WriteLine("Dysplay Full Text Async is ready");
                 }
+                if (finished == displayLineByLineText)
+                {
+                    Console.WriteLine("Dysplay Line By Line Text Async is ready");
+                }
 
                 allTasks.Remove(finished);
             }
-            Console.WriteLine("Breakfast is ready!");
+            Console.WriteLine("Complete Program is ready!");
         }
 
         private static async Task<FullText> DisplayFullTextAsync(StreamReader reader)
@@ -55,6 +69,22 @@ namespace A2_FileReader
             Console.WriteLine(reader.ReadToEnd());
             Console.WriteLine("Display complete");
             return new FullText();
+        }
+
+        private static async Task<LineByLineText> DisplayLineByLineTextAsync(StreamReader reader)
+        {
+            Console.WriteLine("Start displaying text line by line...");
+            await Task.Delay(3000);
+            string lineOfText = "";
+
+            while ((lineOfText = reader.ReadLine()) != null)
+            {
+                await Task.Delay(1000);
+                Console.WriteLine("reading");
+                Console.WriteLine(lineOfText);
+            }
+            Console.WriteLine("Display complete");
+            return new LineByLineText();
         }
 
     }
